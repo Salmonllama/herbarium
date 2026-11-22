@@ -1,26 +1,79 @@
 @import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --canvas: #f8f5ee;
+  --surface: #ffffff;
+  --surface-muted: #efeae0;
+  --ink: #1a1f1b;
+  --ink-muted: #555f57;
+  --primary: #1f4234;
+  --primary-hover: #173328;
+  --primary-foreground: #f8f5ee;
+  --accent: #84623a;
+  --accent-soft: #f1e8da;
+  --border: #ddd5c7;
+  --danger: #9b2c2c;
+  --danger-soft: #fbeaea;
+  --success: #245c3f;
+  --success-soft: #e6f2eb;
+}
+
+.dark {
+  --canvas: #111613;
+  --surface: #181f1b;
+  --surface-muted: #212a25;
+  --ink: #ece8df;
+  --ink-muted: #a0aca3;
+  --primary: #4f9474;
+  --primary-hover: #5ea886;
+  --primary-foreground: #0d1310;
+  --accent: #c49a68;
+  --accent-soft: #2b241a;
+  --border: #2c3831;
+  --danger: #df6c6c;
+  --danger-soft: #2f1b1b;
+  --success: #5aa87c;
+  --success-soft: #172b20;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-border: var(--border);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --font-sans: var(--font-ui-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-editorial-serif), Georgia, Cambria, serif;
+  --font-mono: var(--font-code-mono), ui-monospace, SFMono-Regular, monospace;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--canvas);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+}
+
+/* Archival hairline subtle paper texture on hero banners */
+.archival-paper {
+  background-color: var(--canvas);
+  background-image: radial-gradient(color-mix(in srgb, var(--accent) 8%, transparent) 0.75px, transparent 0.75px);
+  background-size: 20px 20px;
+}
+
+/* Leaflet map refinements */
+.leaflet-container {
+  font-family: var(--font-sans);
+  z-index: 10;
 }
