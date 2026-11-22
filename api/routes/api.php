@@ -5,7 +5,9 @@ use App\Http\Controllers\Api\V1\DeterminationController;
 use App\Http\Controllers\Api\V1\HerbariumController;
 use App\Http\Controllers\Api\V1\HerbariumInvitationController;
 use App\Http\Controllers\Api\V1\HerbariumMemberController;
+use App\Http\Controllers\Api\V1\ImportExportController;
 use App\Http\Controllers\Api\V1\InstanceController;
+use App\Http\Controllers\Api\V1\LabelController;
 use App\Http\Controllers\Api\V1\MapController;
 use App\Http\Controllers\Api\V1\MediaController;
 use App\Http\Controllers\Api\V1\SpecimenController;
@@ -36,12 +38,14 @@ Route::prefix('v1')->group(function () {
     Route::get('/herbaria/{herbarium:slug}/taxa/{taxon}', [TaxonController::class, 'show']);
     Route::get('/herbaria/{herbarium:slug}/taxonomy/tree', [TaxonController::class, 'tree']);
 
-    // Specimens browsing, facets, map & determinations (public if published & herbarium accessible)
+    // Specimens browsing, facets, map, exports & determinations (public if published & herbarium accessible)
     Route::get('/herbaria/{herbarium:slug}/specimens', [SpecimenController::class, 'index']);
     Route::get('/herbaria/{herbarium:slug}/specimens/facets', [SpecimenController::class, 'facets']);
     Route::get('/herbaria/{herbarium:slug}/map/points', [MapController::class, 'points']);
     Route::get('/herbaria/{herbarium:slug}/specimens/{catalogNumber}', [SpecimenController::class, 'show']);
     Route::get('/herbaria/{herbarium:slug}/specimens/{catalogNumber}/determinations', [DeterminationController::class, 'index']);
+    Route::get('/herbaria/{herbarium:slug}/exports/csv', [ImportExportController::class, 'exportCsv']);
+    Route::get('/herbaria/{herbarium:slug}/exports/dwca', [ImportExportController::class, 'exportDwca']);
 
     // Authenticated endpoints (Sanctum SPA cookie OR Bearer Personal Access Token)
     Route::middleware('auth:sanctum')->group(function () {
@@ -91,5 +95,16 @@ Route::prefix('v1')->group(function () {
 
         // Determinations
         Route::post('/herbaria/{herbarium:slug}/specimens/{catalogNumber}/determinations', [DeterminationController::class, 'store']);
+
+        // Printable QR PDF labels
+        Route::post('/herbaria/{herbarium:slug}/labels/pdf', [LabelController::class, 'pdf']);
+
+        // CSV Import/Export, DwC-A Export & Jobs
+        Route::post('/herbaria/{herbarium:slug}/imports/csv/preview', [ImportExportController::class, 'previewCsv']);
+        Route::post('/herbaria/{herbarium:slug}/imports/csv', [ImportExportController::class, 'importCsv']);
+        Route::post('/herbaria/{herbarium:slug}/exports/csv', [ImportExportController::class, 'exportCsv']);
+        Route::post('/herbaria/{herbarium:slug}/exports/dwca', [ImportExportController::class, 'exportDwca']);
+        Route::get('/herbaria/{herbarium:slug}/jobs', [ImportExportController::class, 'indexJobs']);
+        Route::get('/herbaria/{herbarium:slug}/jobs/{job}/download', [ImportExportController::class, 'downloadJob']);
     });
 });

@@ -150,7 +150,7 @@ class AuthController extends Controller
         $validated = $request->validate([
             'name' => ['sometimes', 'required', 'string', 'max:255'],
             'institution' => ['nullable', 'string', 'max:255'],
-            'orcid_id' => ['nullable', 'string', 'max:64', 'unique:users,orcid_id,'.$user->id],
+            'orcid_id' => ['nullable', 'string', 'max:64', \Illuminate\Validation\Rule::unique('users', 'orcid_id')->ignore($user?->id)],
         ]);
 
         $user->update($validated);
