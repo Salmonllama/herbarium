@@ -1,0 +1,25 @@
+# Herbarium Caddy Reverse Proxy Template
+# Replaced by install.sh with your domain (or :80 for local HTTP evaluation)
+__SITE_ADDRESS__ {
+    encode zstd gzip
+
+    @backend {
+        path /api/* /sanctum/* /auth/* /docs/* /storage/*
+    }
+
+    handle @backend {
+        reverse_proxy api:8000 {
+            header_up Host {http.request.host}
+            header_up X-Forwarded-Proto {http.request.scheme}
+            header_up X-Forwarded-Host {http.request.host}
+        }
+    }
+
+    handle {
+        reverse_proxy web:3000 {
+            header_up Host {http.request.host}
+            header_up X-Forwarded-Proto {http.request.scheme}
+            header_up X-Forwarded-Host {http.request.host}
+        }
+    }
+}
