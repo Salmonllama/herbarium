@@ -6,6 +6,8 @@ use App\Http\Controllers\Api\V1\HerbariumController;
 use App\Http\Controllers\Api\V1\HerbariumInvitationController;
 use App\Http\Controllers\Api\V1\HerbariumMemberController;
 use App\Http\Controllers\Api\V1\InstanceController;
+use App\Http\Controllers\Api\V1\MapController;
+use App\Http\Controllers\Api\V1\MediaController;
 use App\Http\Controllers\Api\V1\SpecimenController;
 use App\Http\Controllers\Api\V1\TaxonController;
 use App\Http\Controllers\Api\V1\TaxonLookupController;
@@ -21,6 +23,10 @@ Route::prefix('v1')->group(function () {
     Route::get('/invitations/{token}', [HerbariumInvitationController::class, 'showByToken'])
         ->name('api.v1.invitations.show');
 
+    // Policy-guarded media serving (thumb / public WebP / restricted original)
+    Route::get('/media/{media}/file/{variant}', [MediaController::class, 'serve'])
+        ->name('api.v1.media.serve');
+
     // Public or authenticated herbaria discovery & browsing
     Route::get('/herbaria', [HerbariumController::class, 'index'])->name('api.v1.herbaria.index');
     Route::get('/herbaria/{herbarium:slug}', [HerbariumController::class, 'show'])->name('api.v1.herbaria.show');
@@ -30,9 +36,10 @@ Route::prefix('v1')->group(function () {
     Route::get('/herbaria/{herbarium:slug}/taxa/{taxon}', [TaxonController::class, 'show']);
     Route::get('/herbaria/{herbarium:slug}/taxonomy/tree', [TaxonController::class, 'tree']);
 
-    // Specimens browsing, facets & determinations (public if published & herbarium accessible)
+    // Specimens browsing, facets, map & determinations (public if published & herbarium accessible)
     Route::get('/herbaria/{herbarium:slug}/specimens', [SpecimenController::class, 'index']);
     Route::get('/herbaria/{herbarium:slug}/specimens/facets', [SpecimenController::class, 'facets']);
+    Route::get('/herbaria/{herbarium:slug}/map/points', [MapController::class, 'points']);
     Route::get('/herbaria/{herbarium:slug}/specimens/{catalogNumber}', [SpecimenController::class, 'show']);
     Route::get('/herbaria/{herbarium:slug}/specimens/{catalogNumber}/determinations', [DeterminationController::class, 'index']);
 
@@ -64,17 +71,23 @@ Route::prefix('v1')->group(function () {
         Route::post('/herbaria/{herbarium:slug}/invitations', [HerbariumInvitationController::class, 'store']);
         Route::delete('/herbaria/{herbarium:slug}/invitations/{invitation}', [HerbariumInvitationController::class, 'destroy']);
 
-        // Taxa CRUD
+        // Taxa CRUD & reference media
         Route::post('/herbaria/{herbarium:slug}/taxa', [TaxonController::class, 'store']);
         Route::patch('/herbaria/{herbarium:slug}/taxa/{taxon}', [TaxonController::class, 'update']);
         Route::delete('/herbaria/{herbarium:slug}/taxa/{taxon}', [TaxonController::class, 'destroy']);
+        Route::post('/herbaria/{herbarium:slug}/taxa/{taxon}/media', [MediaController::class, 'storeForTaxon']);
 
-        // Specimens CRUD & workflow
+        // Specimens CRUD, workflow & media
         Route::post('/herbaria/{herbarium:slug}/specimens', [SpecimenController::class, 'store']);
         Route::patch('/herbaria/{herbarium:slug}/specimens/{catalogNumber}', [SpecimenController::class, 'update']);
         Route::post('/herbaria/{herbarium:slug}/specimens/{catalogNumber}/publish', [SpecimenController::class, 'publish']);
         Route::post('/herbaria/{herbarium:slug}/specimens/{catalogNumber}/unpublish', [SpecimenController::class, 'unpublish']);
         Route::delete('/herbaria/{herbarium:slug}/specimens/{catalogNumber}', [SpecimenController::class, 'destroy']);
+        Route::post('/herbaria/{herbarium:slug}/specimens/{catalogNumber}/media', [MediaController::class, 'storeForSpecimen']);
+
+        // Media management
+        Route::patch('/herbaria/{herbarium:slug}/media/{media}', [MediaController::class, 'update']);
+        Route::delete('/herbaria/{herbarium:slug}/media/{media}', [MediaController::class, 'destroy']);
 
         // Determinations
         Route::post('/herbaria/{herbarium:slug}/specimens/{catalogNumber}/determinations', [DeterminationController::class, 'store']);

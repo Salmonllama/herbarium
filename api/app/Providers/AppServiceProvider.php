@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Contracts\MediaUrlResolver;
 use App\Contracts\PlanLimitsContract;
+use App\Domain\Media\DefaultMediaUrlResolver;
 use App\Domain\Quota\UnlimitedPlanLimits;
 use App\Models\Herbarium;
 use App\Models\Specimen;
@@ -18,6 +20,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(PlanLimitsContract::class, UnlimitedPlanLimits::class);
+        $this->app->singleton(MediaUrlResolver::class, DefaultMediaUrlResolver::class);
     }
 
     public function boot(): void

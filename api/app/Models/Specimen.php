@@ -202,11 +202,11 @@ class Specimen extends Model
         Herbarium $herbarium,
         bool $canViewExact,
     ): Builder {
-        $envelopeSql = 'ST_MakeEnvelope(?, ?, ?, ?, 4326)::geography';
+        $envelopeSql = 'ST_MakeEnvelope(?, ?, ?, ?, 4326)';
 
         if ($canViewExact) {
             return $query->whereNotNull('specimens.geom')
-                ->whereRaw("ST_Intersects(specimens.geom, {$envelopeSql})", [$minLng, $minLat, $maxLng, $maxLat]);
+                ->whereRaw("ST_Intersects(specimens.geom::geometry, {$envelopeSql})", [$minLng, $minLat, $maxLng, $maxLat]);
         }
 
         // For unprivileged users:
@@ -219,7 +219,7 @@ class Specimen extends Model
             // Case 1: Explicitly exact OR (inherit + herbarium default exact + taxon not sensitive)
             $spatial->where(function (Builder $exactQ) use ($envelopeSql, $minLng, $minLat, $maxLng, $maxLat, $defaultGeo) {
                 $exactQ->whereNotNull('specimens.geom')
-                    ->whereRaw("ST_Intersects(specimens.geom, {$envelopeSql})", [$minLng, $minLat, $maxLng, $maxLat])
+                    ->whereRaw("ST_Intersects(specimens.geom::geometry, {$envelopeSql})", [$minLng, $minLat, $maxLng, $maxLat])
                     ->where(function (Builder $cond) use ($defaultGeo) {
                         $cond->where('specimens.geoprivacy', GeoprivacyLevel::Exact->value);
                         if ($defaultGeo === GeoprivacyLevel::Exact->value) {
@@ -234,7 +234,7 @@ class Specimen extends Model
             // Case 2: Explicitly obscured OR (inherit + taxon sensitive) OR (inherit + herbarium default obscured)
             $spatial->orWhere(function (Builder $obsQ) use ($envelopeSql, $minLng, $minLat, $maxLng, $maxLat, $defaultGeo) {
                 $obsQ->whereNotNull('specimens.obscured_geom')
-                    ->whereRaw("ST_Intersects(specimens.obscured_geom, {$envelopeSql})", [$minLng, $minLat, $maxLng, $maxLat])
+                    ->whereRaw("ST_Intersects(specimens.obscured_geom::geometry, {$envelopeSql})", [$minLng, $minLat, $maxLng, $maxLat])
                     ->where(function (Builder $cond) use ($defaultGeo) {
                         $cond->where('specimens.geoprivacy', GeoprivacyLevel::Obscured->value)
                             ->orWhere(function (Builder $inhSens) {
