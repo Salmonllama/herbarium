@@ -17,6 +17,16 @@ class Herbarium extends Model
 
     protected $table = 'herbaria';
 
+    protected $attributes = [
+        'visibility' => 'public',
+        'id_prefix' => 'HERB',
+        'id_separator' => '-',
+        'id_padding' => 6,
+        'id_next_sequence' => 1,
+        'default_geoprivacy' => 'exact',
+        'default_license' => 'CC-BY-4.0',
+    ];
+
     protected $fillable = [
         'slug',
         'name',
@@ -72,6 +82,16 @@ class Herbarium extends Model
     public function invitations(): HasMany
     {
         return $this->hasMany(HerbariumInvitation::class);
+    }
+
+    public function taxa(): HasMany
+    {
+        return $this->hasMany(Taxon::class);
+    }
+
+    public function specimens(): HasMany
+    {
+        return $this->hasMany(Specimen::class);
     }
 
     public function previewNextCatalogNumber(): string
